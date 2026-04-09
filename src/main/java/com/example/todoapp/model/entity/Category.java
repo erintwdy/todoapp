@@ -1,10 +1,19 @@
-package com.example.todoapp.entity;
+package com.example.todoapp.model.entity;
 
 import jakarta.persistence.*;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Getter
+@Setter
+@ToString(exclude = "tasks")
+@JsonPropertyOrder({ "id", "categoryName" })
 @Entity
 @Table(name = "task_category")
 public class Category {
@@ -14,21 +23,12 @@ public class Category {
     private Long id;
 
     @Column(name = "category_name") 
-    private String name;
+    private String categoryName;
 
-     @Column(name = "description") 
+    @Column(name = "description") 
     private String description;
 
     @JsonIgnore 
     @OneToMany(mappedBy = "category")
     private List<Task> tasks;
-
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public List<Task> getTasks() { return tasks; }
-    public void setTasks(List<Task> tasks) { this.tasks = tasks; }
 }

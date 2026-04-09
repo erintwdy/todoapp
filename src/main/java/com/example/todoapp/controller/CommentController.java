@@ -1,9 +1,10 @@
 package com.example.todoapp.controller;
 
-import com.example.todoapp.entity.Comment;
-import com.example.todoapp.entity.Task;
+import com.example.todoapp.model.entity.Comment;
+import com.example.todoapp.model.entity.Task;
 import com.example.todoapp.repository.CommentRepository;
 import com.example.todoapp.repository.TaskRepository;
+import com.example.todoapp.service.CommentService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,21 +15,19 @@ import java.util.List;
 @RequestMapping("/api/comments")
 public class CommentController {
 
-    @Autowired
-    private CommentRepository commentRepository;
+    private final CommentService commentService;
 
-    @Autowired
-    private TaskRepository taskRepository;
+    public CommentController(CommentService commentService) {
+        this.commentService = commentService;
+    }
 
     @GetMapping
     public List<Comment> getAll() {
-        return commentRepository.findAll();
+        return commentService.getAll();
     }
 
     @PostMapping
     public Comment create(@RequestParam Long taskId, @RequestBody Comment comment) {
-        Task task = taskRepository.findById(taskId).orElseThrow();
-        comment.setTask(task);
-        return commentRepository.save(comment);
+        return commentService.create(taskId, comment);
     }
 }

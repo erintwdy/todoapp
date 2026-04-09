@@ -1,7 +1,8 @@
 package com.example.todoapp.repository;
 
-import com.example.todoapp.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.example.todoapp.model.entity.User;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 }
