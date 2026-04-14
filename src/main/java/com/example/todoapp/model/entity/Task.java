@@ -1,19 +1,13 @@
 package com.example.todoapp.model.entity;
 
 import jakarta.persistence.*;
-import java.util.List;
 import java.time.LocalDate;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
 
 @Getter
 @Setter
-@ToString(exclude = {"comments", "category", "user"})
 @JsonPropertyOrder({
     "id",
     "title",
@@ -32,7 +26,10 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, length = 100)
     private String title;
+
+    @Column(length = 255)
     private String description;
 
     @Enumerated(EnumType.STRING)
@@ -47,10 +44,6 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "task")
-    private List<Comment> comments;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

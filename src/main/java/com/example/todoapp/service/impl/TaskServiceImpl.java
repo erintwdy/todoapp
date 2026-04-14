@@ -1,61 +1,67 @@
-package com.example.todoapp.service;
+package com.example.todoapp.service.impl;
 
 import com.example.todoapp.model.dto.request.TaskRequest;
 import com.example.todoapp.model.dto.response.TaskResponse;
 import com.example.todoapp.model.entity.*;
 import com.example.todoapp.repository.*;
+import com.example.todoapp.service.interfaces.TaskService;
+import com.example.todoapp.exception.NotFoundException;
 
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class TaskService {
+public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
 
-    public TaskService(TaskRepository taskRepository,
-                       CategoryRepository categoryRepository,
-                       UserRepository userRepository) {
+    public TaskServiceImpl(TaskRepository taskRepository,
+                           CategoryRepository categoryRepository,
+                           UserRepository userRepository) {
         this.taskRepository = taskRepository;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
     }
 
-    // ✅ GET (JOIN)
+    @Override
     public List<TaskResponse> getAll() {
         List<Task> tasks = taskRepository.findAll();
         return tasks.stream().map(this::mapToResponse).toList();
     }
 
-    // ✅ POST
+    @Override
     public TaskResponse create(TaskRequest request) {
 
         Task task = new Task();
         task.setTitle(request.getTitle());
         task.setDescription(request.getDescription());
         task.setDueDate(request.getDueDate());
-        task.setPriority(Priority.valueOf(request.getPriority()));
-        task.setStatus(Status.valueOf(request.getStatus()));
 
-        // user
+        // ✅ ENUM VALIDATION
+        try {
+            task.setPriority(Priority.valueOf(request.getPriority().toUpperCase()));
+            task.setStatus(Status.valueOf(request.getStatus().toUpperCase()));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Priority atau Status tidak valid");
+        }
+
+        // ✅ USER
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new RuntimeException("User tidak ditemukan"));
+                .orElseThrow(() -> new NotFoundException("User tidak ditemukan"));
         task.setUser(user);
 
-        // category
+        // ✅ CATEGORY
         Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new RuntimeException("Category tidak ditemukan"));
+                .orElseThrow(() -> new NotFoundException("Category tidak ditemukan"));
         task.setCategory(category);
 
         Task saved = taskRepository.save(task);
-
         return mapToResponse(saved);
     }
 
-    // 🔁 mapping JOIN
     private TaskResponse mapToResponse(Task task) {
         TaskResponse res = new TaskResponse();
 
