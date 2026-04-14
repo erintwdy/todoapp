@@ -23,24 +23,48 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    // ✅ GET
+    // ✅ GET ALL
     @GetMapping
     public ResponseEntity<ApiResponse<List<TaskResponse>>> getAll() {
-
-        List<TaskResponse> tasks = taskService.getAll();
-
         return ResponseEntity.ok(
-                new ApiResponse<>(200, "Data berhasil diambil", tasks)
+                new ApiResponse<>(200, "Data berhasil diambil", taskService.getAll())
         );
     }
 
-    // ✅ POST
+    // 🔥 GET BY ID
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<TaskResponse>> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(
+                new ApiResponse<>(200, "Data berhasil diambil", taskService.getById(id))
+        );
+    }
+
+    // ✅ CREATE
     @PostMapping
     public ResponseEntity<ApiResponse<TaskResponse>> create(@Valid @RequestBody TaskRequest request) {
-
-        TaskResponse task = taskService.create(request);
-
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse<>(201, "Task berhasil dibuat", task));
+                .body(new ApiResponse<>(201, "Task berhasil dibuat", taskService.create(request)));
+    }
+
+    // 🔥 UPDATE
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<TaskResponse>> update(
+            @PathVariable Long id,
+            @Valid @RequestBody TaskRequest request) {
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(200, "Task berhasil diupdate", taskService.update(id, request))
+        );
+    }
+
+    // 🔥 DELETE
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
+
+        taskService.delete(id);
+
+        return ResponseEntity.ok(
+                new ApiResponse<>(200, "Task berhasil dihapus", null)
+        );
     }
 }

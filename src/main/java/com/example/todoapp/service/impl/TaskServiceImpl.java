@@ -28,19 +28,54 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskResponse> getAll() {
-        List<Task> tasks = taskRepository.findAll();
-        return tasks.stream().map(this::mapToResponse).toList();
+        return taskRepository.findAll().stream().map(this::mapToResponse).toList();
+    }
+
+    @Override
+    public TaskResponse getById(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Task tidak ditemukan"));
+        return mapToResponse(task);
     }
 
     @Override
     public TaskResponse create(TaskRequest request) {
 
         Task task = new Task();
+        setTaskFields(task, request);
+
+        Task saved = taskRepository.save(task);
+        return mapToResponse(saved);
+    }
+
+    @Override
+    public TaskResponse update(Long id, TaskRequest request) {
+
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Task tidak ditemukan"));
+
+        setTaskFields(task, request);
+
+        Task updated = taskRepository.save(task);
+        return mapToResponse(updated);
+    }
+
+    @Override
+    public void delete(Long id) {
+
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Task tidak ditemukan"));
+
+        taskRepository.delete(task);
+    }
+
+    // 🔥 HELPER BIAR TIDAK DUPLIKASI
+    private void setTaskFields(Task task, TaskRequest request) {
+
         task.setTitle(request.getTitle());
         task.setDescription(request.getDescription());
         task.setDueDate(request.getDueDate());
 
-        // ✅ ENUM VALIDATION
         try {
             task.setPriority(Priority.valueOf(request.getPriority().toUpperCase()));
             task.setStatus(Status.valueOf(request.getStatus().toUpperCase()));
@@ -48,18 +83,13 @@ public class TaskServiceImpl implements TaskService {
             throw new IllegalArgumentException("Priority atau Status tidak valid");
         }
 
-        // ✅ USER
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new NotFoundException("User tidak ditemukan"));
         task.setUser(user);
 
-        // ✅ CATEGORY
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new NotFoundException("Category tidak ditemukan"));
         task.setCategory(category);
-
-        Task saved = taskRepository.save(task);
-        return mapToResponse(saved);
     }
 
     private TaskResponse mapToResponse(Task task) {
