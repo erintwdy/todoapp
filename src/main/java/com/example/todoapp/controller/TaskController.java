@@ -1,14 +1,12 @@
 package com.example.todoapp.controller;
 
-import com.example.todoapp.model.dto.request.TaskRequest;
-import com.example.todoapp.model.dto.response.TaskResponse;
+import com.example.todoapp.model.dto.request.TaskRequestDTO;
+import com.example.todoapp.model.dto.response.TaskResponseDTO;
 import com.example.todoapp.model.dto.response.ApiResponse;
 import com.example.todoapp.service.interfaces.TaskService;
 
 import jakarta.validation.Valid;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,48 +21,54 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-    // ✅ GET ALL
     @GetMapping
-    public ResponseEntity<ApiResponse<List<TaskResponse>>> getAll() {
+    public ResponseEntity<ApiResponse<List<TaskResponseDTO>>> getAll() {
+
+        List<TaskResponseDTO> data = taskService.getAll();
+
         return ResponseEntity.ok(
-                new ApiResponse<>(200, "Data berhasil diambil", taskService.getAll())
+                new ApiResponse<>("success", "Data retrieved successfully", data)
         );
     }
 
-    // 🔥 GET BY ID
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<TaskResponse>> getById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<TaskResponseDTO>> getById(@PathVariable Long id) {
+
+        TaskResponseDTO data = taskService.getById(id);
+
         return ResponseEntity.ok(
-                new ApiResponse<>(200, "Data berhasil diambil", taskService.getById(id))
+                new ApiResponse<>("success", "Data retrieved successfully", data)
         );
     }
 
-    // ✅ CREATE
     @PostMapping
-    public ResponseEntity<ApiResponse<TaskResponse>> create(@Valid @RequestBody TaskRequest request) {
+    public ResponseEntity<ApiResponse<TaskResponseDTO>> create(@Valid @RequestBody TaskRequestDTO request) {
+
+        TaskResponseDTO data = taskService.create(request);
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new ApiResponse<>(201, "Task berhasil dibuat", taskService.create(request)));
+                .body(new ApiResponse<>("success", "Task created successfully", data));
     }
 
-    // 🔥 UPDATE
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<TaskResponse>> update(
+    public ResponseEntity<ApiResponse<TaskResponseDTO>> update(
             @PathVariable Long id,
-            @Valid @RequestBody TaskRequest request) {
+            @Valid @RequestBody TaskRequestDTO request) {
+
+        TaskResponseDTO data = taskService.update(id, request);
 
         return ResponseEntity.ok(
-                new ApiResponse<>(200, "Task berhasil diupdate", taskService.update(id, request))
+                new ApiResponse<>("success", "Task updated successfully", data)
         );
     }
 
-    // 🔥 DELETE
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
 
         taskService.delete(id);
 
         return ResponseEntity.ok(
-                new ApiResponse<>(200, "Task berhasil dihapus", null)
+                new ApiResponse<>("success", "Task deleted successfully", null)
         );
     }
 }

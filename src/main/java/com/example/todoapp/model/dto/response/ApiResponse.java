@@ -1,30 +1,29 @@
 package com.example.todoapp.model.dto.response;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
 public class ApiResponse<T> {
 
-    private int statusCode;
+    private String status;
     private String message;
     private T data;
-    private Object errors;
 
-    // SUCCESS
-    public ApiResponse(int statusCode, String message, T data) {
-        this.statusCode = statusCode;
-        this.message = message;
-        this.data = data;
-        this.errors = null;
+    public ApiResponse() {
     }
 
-    // ERROR
-    public ApiResponse(int statusCode, String message, Object errors, boolean isError) {
-        this.statusCode = statusCode;
+    public ApiResponse(String status, String message, T data) {
+        this.status = status;
         this.message = message;
-        this.errors = errors;
-        this.data = null;
+        this.data = data;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public T getData() {
+        return data;
     }
 }

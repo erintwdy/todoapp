@@ -1,7 +1,7 @@
 package com.example.todoapp.service.impl;
 
-import com.example.todoapp.model.dto.request.TaskRequest;
-import com.example.todoapp.model.dto.response.TaskResponse;
+import com.example.todoapp.model.dto.request.TaskRequestDTO;
+import com.example.todoapp.model.dto.response.TaskResponseDTO;
 import com.example.todoapp.model.entity.*;
 import com.example.todoapp.repository.*;
 import com.example.todoapp.service.interfaces.TaskService;
@@ -27,19 +27,19 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<TaskResponse> getAll() {
+    public List<TaskResponseDTO> getAll() {
         return taskRepository.findAll().stream().map(this::mapToResponse).toList();
     }
 
     @Override
-    public TaskResponse getById(Long id) {
+    public TaskResponseDTO getById(Long id) {
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Task tidak ditemukan"));
+                .orElseThrow(() -> new NotFoundException("Task not found"));
         return mapToResponse(task);
     }
 
     @Override
-    public TaskResponse create(TaskRequest request) {
+    public TaskResponseDTO create(TaskRequestDTO request) {
 
         Task task = new Task();
         setTaskFields(task, request);
@@ -49,10 +49,10 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskResponse update(Long id, TaskRequest request) {
+    public TaskResponseDTO update(Long id, TaskRequestDTO request) {
 
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Task tidak ditemukan"));
+                .orElseThrow(() -> new NotFoundException("Task not found"));
 
         setTaskFields(task, request);
 
@@ -64,13 +64,12 @@ public class TaskServiceImpl implements TaskService {
     public void delete(Long id) {
 
         Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Task tidak ditemukan"));
+                .orElseThrow(() -> new NotFoundException("Task not found"));
 
         taskRepository.delete(task);
     }
 
-    // 🔥 HELPER BIAR TIDAK DUPLIKASI
-    private void setTaskFields(Task task, TaskRequest request) {
+    private void setTaskFields(Task task, TaskRequestDTO request) {
 
         task.setTitle(request.getTitle());
         task.setDescription(request.getDescription());
@@ -80,20 +79,20 @@ public class TaskServiceImpl implements TaskService {
             task.setPriority(Priority.valueOf(request.getPriority().toUpperCase()));
             task.setStatus(Status.valueOf(request.getStatus().toUpperCase()));
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Priority atau Status tidak valid");
+            throw new IllegalArgumentException("Invalid priority or status");
         }
 
         User user = userRepository.findById(request.getUserId())
-                .orElseThrow(() -> new NotFoundException("User tidak ditemukan"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
         task.setUser(user);
 
         Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new NotFoundException("Category tidak ditemukan"));
+                .orElseThrow(() -> new NotFoundException("Category not found"));
         task.setCategory(category);
     }
 
-    private TaskResponse mapToResponse(Task task) {
-        TaskResponse res = new TaskResponse();
+    private TaskResponseDTO mapToResponse(Task task) {
+        TaskResponseDTO res = new TaskResponseDTO();
 
         res.setId(task.getId());
         res.setTitle(task.getTitle());

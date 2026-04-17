@@ -1,19 +1,19 @@
 package com.example.todoapp.service.interfaces;
 
-import com.example.todoapp.model.dto.request.TaskRequest;
-import com.example.todoapp.model.dto.response.TaskResponse;
+import com.example.todoapp.model.dto.request.TaskRequestDTO;
+import com.example.todoapp.model.dto.response.TaskResponseDTO;
 
 import java.util.List;
 
 public interface TaskService {
 
-    List<TaskResponse> getAll();
+    List<TaskResponseDTO> getAll();
 
-    TaskResponse create(TaskRequest request);
+    TaskResponseDTO create(TaskRequestDTO request);
 
-    TaskResponse getById(Long id);
+    TaskResponseDTO getById(Long id);
 
-    TaskResponse update(Long id, TaskRequest request);
+    TaskResponseDTO update(Long id, TaskRequestDTO request);
 
     void delete(Long id);
 }
